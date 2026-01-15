@@ -1,0 +1,52 @@
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import merge from "deepmerge";
+import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
+import {
+  MD3DarkTheme,
+  MD3LightTheme,
+  PaperProvider,
+  adaptNavigationTheme,
+} from "react-native-paper";
+import { Colors } from "../constants/theme";
+
+import "../../global.css";
+
+const { LightTheme, DarkTheme } = adaptNavigationTheme({
+  reactNavigationLight: NavigationDefaultTheme,
+  reactNavigationDark: NavigationDarkTheme,
+});
+
+const CombinedLightTheme = merge(LightTheme, {
+  ...MD3LightTheme,
+  colors: Colors.light,
+  roundness: 4,
+});
+
+const CombinedDarkTheme = merge(DarkTheme, {
+  ...MD3DarkTheme,
+  colors: Colors.dark,
+  roundness: 4,
+});
+
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
+  const paperTheme =
+    colorScheme === "dark" ? CombinedDarkTheme : CombinedLightTheme;
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <ThemeProvider value={paperTheme}>
+        <Stack screenOptions={{ headerShown: !false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="auth" />
+        </Stack>
+      </ThemeProvider>
+    </PaperProvider>
+  );
+}
