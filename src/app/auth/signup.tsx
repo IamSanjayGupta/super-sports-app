@@ -1,19 +1,18 @@
+import { useAuthContext } from "@/src/context/AuthContext";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
-type Props = {
-  onNavigateLogin?: () => void;
-};
-
-export default function SignupScreen({ onNavigateLogin }: Props) {
+export default function SignupScreen() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { signup } = useAuthContext();
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     console.log({ name, username: username, password });
+    await signup({ fullname: name, username, password });
   };
 
   return (
@@ -50,6 +49,7 @@ export default function SignupScreen({ onNavigateLogin }: Props) {
         <Button
           mode="contained"
           onPress={handleSignup}
+          disabled={!name || !username || !password}
           contentStyle={{ paddingVertical: 8 }}
         >
           Sign Up
@@ -57,7 +57,7 @@ export default function SignupScreen({ onNavigateLogin }: Props) {
       </View>
 
       <View className="flex-row justify-center mt-6">
-        <Link href={"/auth"}>
+        <Link href={"/auth"} replace>
           <Text className="">Already have an account? </Text>
           <Text className="ml-1">Login</Text>
         </Link>

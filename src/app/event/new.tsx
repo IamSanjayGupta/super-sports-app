@@ -52,8 +52,6 @@ export default function CreateEventScreen() {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
 
-  /* ------------------ Helpers ------------------ */
-
   const updateForm = <K extends keyof EventFormState>(
     key: K,
     value: EventFormState[K],

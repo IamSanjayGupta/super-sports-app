@@ -1,18 +1,16 @@
+import { useAuthContext } from "@/src/context/AuthContext";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
-type Props = {
-  onNavigateSignup?: () => void;
-};
-
-export default function LoginScreen({ onNavigateSignup }: Props) {
+export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuthContext();
 
-  const handleLogin = () => {
-    console.log({ email: username, password });
+  const handleLogin = async () => {
+    await login(username, password);
   };
 
   return (
@@ -26,7 +24,7 @@ export default function LoginScreen({ onNavigateSignup }: Props) {
           mode="outlined"
           label="Username"
           value={username}
-          onChangeText={setUsername}
+          onChangeText={(username) => setUsername(username.trim())}
           autoCapitalize="none"
           keyboardType="email-address"
         />
@@ -35,7 +33,7 @@ export default function LoginScreen({ onNavigateSignup }: Props) {
           mode="outlined"
           label="Password"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(password) => setPassword(password.trim())}
           secureTextEntry
         />
 
@@ -43,14 +41,15 @@ export default function LoginScreen({ onNavigateSignup }: Props) {
           mode="contained"
           onPress={handleLogin}
           contentStyle={{ paddingVertical: 8 }}
+          disabled={!username || !password}
         >
           Login
         </Button>
       </View>
 
       <View className="flex-row justify-center mt-6">
-        <Link href={"/auth/signup"}>
-          <Text className="text-gray-600">Don’t have an account? </Text>
+        <Link href={"/auth/signup"} replace>
+          <Text className="">Don’t have an account? </Text>
           <Text className="ml-1 ">Sign up</Text>
         </Link>
       </View>

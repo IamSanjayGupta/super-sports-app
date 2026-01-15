@@ -17,6 +17,7 @@ import { Colors } from "../constants/theme";
 import { enGB, registerTranslation } from "react-native-paper-dates";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "../../global.css";
+import { AuthProvider } from "../context/AuthContext";
 
 registerTranslation("en", enGB);
 
@@ -53,10 +54,12 @@ export default function RootLayout() {
               backgroundColor: paperTheme.colors.background,
             }}
           >
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="auth" />
-            </Stack>
+            <AuthProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="auth" />
+              </Stack>
+            </AuthProvider>
           </SafeAreaView>
         </ThemeProvider>
       </PaperProvider>
