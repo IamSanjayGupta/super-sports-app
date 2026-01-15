@@ -1,5 +1,5 @@
 import { EventCard } from "@/src/components/EventCard";
-import { EventFilters } from "@/src/components/EventFilter";
+import { EventFilters, SortField } from "@/src/components/EventFilter";
 import { EventType } from "@/src/enum/event.enum";
 import { EVENTS } from "@/src/interfaces/event.interface";
 import { router } from "expo-router";
@@ -9,8 +9,10 @@ import { FAB } from "react-native-paper";
 
 export default function EventListScreen() {
   const [type, setType] = useState<EventType | "all">("all");
-  const [sortBy, setSortBy] = useState<"date" | "participants">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState<{
+    field: SortField;
+    order: "asc" | "desc";
+  }>({ field: "date", order: "asc" });
 
   const [search, setSearch] = useState("");
 
@@ -35,31 +37,31 @@ export default function EventListScreen() {
       data = data.filter((e) => e.eventType === type);
     }
 
-    if (sortBy === "date") {
+    if (sortBy.field === "date") {
       data.sort((a, b) =>
-        sortOrder === "asc"
+        sortBy.order === "asc"
           ? a.startDate.getTime() - b.startDate.getTime()
           : b.startDate.getTime() - a.startDate.getTime(),
       );
     }
 
-    if (sortBy === "participants") {
+    if (sortBy.field === "participants") {
       data.sort((a, b) =>
-        sortOrder === "asc"
+        sortBy.order === "asc"
           ? a.participants.length - b.participants.length
           : b.participants.length - a.participants.length,
       );
     }
 
     return data;
-  }, [search, type, sortBy, sortOrder]);
+  }, [search, type, sortBy]);
 
   return (
     <View className="flex-1 px-4 pt-4 ">
       <EventFilters
         selectedType={type}
         onTypeChange={setType}
-        onSortChange={setSortBy}
+        onSortChange={(field, order) => setSortBy({ field, order })}
         search={search}
         onSearchChange={setSearch}
       />

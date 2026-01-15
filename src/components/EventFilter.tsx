@@ -4,8 +4,8 @@ import { Chip, IconButton, Text, TextInput } from "react-native-paper";
 import Popover from "react-native-popover-view";
 import { EventType } from "../enum/event.enum";
 
-type SortField = "date" | "participants";
-type SortOrder = "asc" | "desc";
+export type SortField = "date" | "participants";
+export type SortOrder = "asc" | "desc";
 
 interface Props {
   selectedType: EventType | "all";
