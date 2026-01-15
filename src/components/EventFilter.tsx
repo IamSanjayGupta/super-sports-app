@@ -45,6 +45,11 @@ export function EventFilters({
           onChangeText={onSearchChange}
           style={styles.searchInput}
           dense
+          {...(search.length > 0 && {
+            right: (
+              <TextInput.Icon icon="close" onPress={() => onSearchChange("")} />
+            ),
+          })}
           keyboardType="web-search"
         />
 

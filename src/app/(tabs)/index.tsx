@@ -16,8 +16,6 @@ export default function EventListScreen() {
 
   const [search, setSearch] = useState("");
 
-  console.log(sortBy, "sortBy", type, "type", search, "search");
-
   const filteredEvents = useMemo(() => {
     let data = [...EVENTS];
 
