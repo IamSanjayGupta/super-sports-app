@@ -14,7 +14,11 @@ import {
 } from "react-native-paper";
 import { Colors } from "../constants/theme";
 
+import { enGB, registerTranslation } from "react-native-paper-dates";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "../../global.css";
+
+registerTranslation("en", enGB);
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
   reactNavigationLight: NavigationDefaultTheme,
@@ -40,13 +44,22 @@ export default function RootLayout() {
     colorScheme === "dark" ? CombinedDarkTheme : CombinedLightTheme;
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <ThemeProvider value={paperTheme}>
-        <Stack screenOptions={{ headerShown: !false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="auth" />
-        </Stack>
-      </ThemeProvider>
-    </PaperProvider>
+    <SafeAreaProvider>
+      <PaperProvider theme={paperTheme}>
+        <ThemeProvider value={paperTheme}>
+          <SafeAreaView
+            style={{
+              flex: 1,
+              backgroundColor: paperTheme.colors.background,
+            }}
+          >
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="auth" />
+            </Stack>
+          </SafeAreaView>
+        </ThemeProvider>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }

@@ -2,8 +2,10 @@ import { EventCard } from "@/src/components/EventCard";
 import { EventFilters } from "@/src/components/EventFilter";
 import { EventType } from "@/src/enum/event.enum";
 import { EVENTS } from "@/src/interfaces/event.interface";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
+import { FAB } from "react-native-paper";
 
 export default function EventListScreen() {
   const [type, setType] = useState<EventType | "all">("all");
@@ -68,6 +70,24 @@ export default function EventListScreen() {
         renderItem={({ item }) => <EventCard event={item} />}
         showsVerticalScrollIndicator={false}
       />
+
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={() => router.push("/event/new")}
+        // label="Create Event"
+        animated
+        // customSize={40}
+        // variant=""
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 16,
+  },
+});
