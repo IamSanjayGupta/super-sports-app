@@ -115,9 +115,9 @@ export default function CreateEventScreen() {
       participants: [],
     };
 
-    console.log("CREATE EVENT PAYLOAD:", payload);
-
     await createEvent(payload);
+
+    return router.back();
   };
 
   const isDisabled =

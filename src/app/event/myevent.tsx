@@ -7,7 +7,7 @@ import { FlatList, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 export default function MyEvents() {
-  const { user, events } = useAppContext();
+  const { user, events, leaveEvent } = useAppContext();
 
   const myEvents = useMemo(() => {
     return events.filter((event) => event.participants.includes(user!.userId));
@@ -20,7 +20,9 @@ export default function MyEvents() {
       <FlatList
         data={myEvents}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <EventCard event={item} />}
+        renderItem={({ item }) => (
+          <EventCard event={item} isAlreadyJoined onLeave={leaveEvent} />
+        )}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center">
             <Text className="text-lg font-bold mb-5">No events available</Text>

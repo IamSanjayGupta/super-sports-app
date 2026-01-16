@@ -7,6 +7,7 @@ interface Props {
   showJoinBtn?: boolean;
   onJoin?: (event: Event) => Promise<void>;
   isAlreadyJoined?: boolean;
+  onLeave?: (eventId: number) => Promise<void>;
 }
 
 export const formatDate = (
@@ -30,6 +31,7 @@ export function EventCard({
   showJoinBtn,
   onJoin,
   isAlreadyJoined,
+  onLeave,
 }: Props) {
   const eventFull = event.participants.length >= event.maxParticipants;
 
@@ -68,13 +70,23 @@ export function EventCard({
       </Card.Content>
 
       <Card.Actions>
-        {showJoinBtn && (
+        {((showJoinBtn && !isAlreadyJoined) || !onLeave) && (
           <Button
             mode="contained"
             disabled={eventFull || isAlreadyJoined}
             onPress={() => onJoin?.(event)}
           >
             {isAlreadyJoined ? "Already Joined" : eventFull ? "Full" : "Join"}
+          </Button>
+        )}
+
+        {isAlreadyJoined && new Date(event.endDate) > new Date() && onLeave && (
+          <Button
+            mode="contained-tonal"
+            buttonColor="error"
+            onPress={() => onLeave(event.id)}
+          >
+            Leave Event
           </Button>
         )}
       </Card.Actions>

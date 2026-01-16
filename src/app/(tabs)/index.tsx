@@ -14,7 +14,8 @@ export default function EventListScreen() {
     field: SortField;
     order: "asc" | "desc";
   }>({ field: "date", order: "asc" });
-  const { joinEvent, isEventLoading, events, user } = useAppContext();
+  const { joinEvent, leaveEvent, isEventLoading, events, user } =
+    useAppContext();
 
   const filteredEvents = useMemo(() => {
     let data = [...events];
@@ -79,6 +80,7 @@ export default function EventListScreen() {
               event={item}
               showJoinBtn
               onJoin={joinEvent}
+              onLeave={leaveEvent}
               isAlreadyJoined={myJoinedEvents.includes(item)}
             />
           )}

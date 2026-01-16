@@ -29,6 +29,7 @@ interface AppContextType {
   isEventLoading: boolean;
   loadEvents: () => Promise<void>;
   joinEvent: (event: Event) => Promise<void>;
+  leaveEvent: (eventId: number) => Promise<void>;
   createEvent: (eventBody: ICreateEvent) => Promise<void>;
 }
 
@@ -152,7 +153,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     [events, loadEvents, user?.userId],
   );
 
-  console.log(events);
+  const leaveEvent = useCallback(
+    async (eventId: number) => {
+      if (!user?.userId) return Alert.alert("Please login to leave the event.");
+
+      const eventIndexToLeave = events.findIndex((e) => e.id === eventId);
+
+      if (eventIndexToLeave === -1)
+        return Alert.alert("No event found. Please refresh the page and try.");
+
+      const eventToLeave = events[eventIndexToLeave];
+      if (!eventToLeave.participants.includes(user.userId))
+        return Alert.alert("You have not joined this event");
+
+      if (eventToLeave.startDate < new Date())
+        return Alert.alert(
+          "You cannot leave an event that has already started.",
+        );
+
+      events[eventIndexToLeave].participants = events[
+        eventIndexToLeave
+      ].participants.filter((p) => p !== user.userId);
+
+      await StorageUtil.save(STORAGE_KEYS.EVENTS, events);
+      await loadEvents();
+      return Alert.alert("You have successfully left the event.");
+    },
+
+    [events, loadEvents, user?.userId],
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -167,6 +197,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         loadEvents,
         joinEvent,
         createEvent,
+        leaveEvent,
       }}
     >
       {children}
