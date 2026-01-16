@@ -7,7 +7,7 @@ import { FlatList, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 export default function MyEvents() {
-  const { user, events, leaveEvent } = useAppContext();
+  const { session: user, events, leaveEvent } = useAppContext();
 
   const myEvents = useMemo(() => {
     return events.filter((event) => event.participants.includes(user!.userId));
@@ -21,7 +21,17 @@ export default function MyEvents() {
         data={myEvents}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <EventCard event={item} isAlreadyJoined onLeave={leaveEvent} />
+          <EventCard
+            event={item}
+            isAlreadyJoined
+            onLeave={leaveEvent}
+            onViewEvent={(event) =>
+              router.push({
+                pathname: "/event/[id]",
+                params: { id: event.id },
+              })
+            }
+          />
         )}
         ListEmptyComponent={
           <View className="flex-1 items-center justify-center">

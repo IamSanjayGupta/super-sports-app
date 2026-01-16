@@ -50,7 +50,7 @@ export default function LoginScreen() {
       <View className="flex-row justify-center mt-6">
         <Link href={"/auth/signup"} replace>
           <Text className="">Don’t have an account? </Text>
-          <Text className="ml-1 ">Sign up</Text>
+          <Text className="ml-1 underline ">Sign up</Text>
         </Link>
       </View>
     </View>

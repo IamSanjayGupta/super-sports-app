@@ -14,8 +14,13 @@ export default function EventListScreen() {
     field: SortField;
     order: "asc" | "desc";
   }>({ field: "date", order: "asc" });
-  const { joinEvent, leaveEvent, isEventLoading, events, user } =
-    useAppContext();
+  const {
+    joinEvent,
+    leaveEvent,
+    isEventLoading,
+    events,
+    session: user,
+  } = useAppContext();
 
   const filteredEvents = useMemo(() => {
     let data = [...events];
@@ -81,6 +86,12 @@ export default function EventListScreen() {
               showJoinBtn
               onJoin={joinEvent}
               onLeave={leaveEvent}
+              onViewEvent={(event) =>
+                router.push({
+                  pathname: "/event/[id]",
+                  params: { id: event.id },
+                })
+              }
               isAlreadyJoined={myJoinedEvents.includes(item)}
             />
           )}

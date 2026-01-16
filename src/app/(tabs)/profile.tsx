@@ -6,7 +6,7 @@ import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, List, Text } from "react-native-paper";
 
 export default function Profile() {
-  const { isLoggedIn, user, logout } = useAppContext();
+  const { isLoggedIn, session, logout } = useAppContext();
 
   return (
     <View style={styles.container}>
@@ -20,7 +20,9 @@ export default function Profile() {
               <Avatar.Icon size={72} icon="account" style={styles.avatar} />
 
               <View style={styles.userInfo}>
-                <Text style={styles.username}>{user?.username || "User"}</Text>
+                <Text style={styles.username}>
+                  {session?.username || "User"}
+                </Text>
                 <Text style={styles.subText}>Logged in user</Text>
               </View>
             </Card.Content>

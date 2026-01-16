@@ -4,6 +4,7 @@ import { Event } from "../interfaces/event.interface";
 
 interface Props {
   event: Event;
+  onViewEvent?: (event: Event) => void;
   showJoinBtn?: boolean;
   onJoin?: (event: Event) => Promise<void>;
   isAlreadyJoined?: boolean;
@@ -32,11 +33,12 @@ export function EventCard({
   onJoin,
   isAlreadyJoined,
   onLeave,
+  onViewEvent,
 }: Props) {
   const eventFull = event.participants.length >= event.maxParticipants;
 
   return (
-    <Card className="mb-4">
+    <Card className="mb-4" onPress={() => onViewEvent?.(event)}>
       <Image
         source={
           event.bannerUrl.trim()

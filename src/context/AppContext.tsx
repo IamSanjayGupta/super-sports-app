@@ -15,7 +15,8 @@ import { Session } from "../interfaces/session.interface";
 import { User } from "../interfaces/user.interface";
 
 interface AppContextType {
-  user: Session | null;
+  session: Session | null;
+  users: User[];
   isLoggedIn: boolean;
   loading: boolean;
   signup: (userBody: {
@@ -38,11 +39,12 @@ const AppContext = createContext<AppContextType>({} as AppContextType);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEventLoading, setEventLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
-  const isLoggedIn = !!user;
+  const isLoggedIn = !!session;
 
   const loadEvents = useCallback(async () => {
     try {
@@ -57,16 +59,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  const loadUsers = useCallback(async () => {
+    try {
+      const users = (await StorageUtil.load<User[]>(STORAGE_KEYS.USERS)) || [];
+      setUsers(users);
+    } catch (error) {
+      console.log("Unable to load users", error);
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       const session = await StorageUtil.load<Session>(STORAGE_KEYS.SESSION);
-      await loadEvents();
-      setUser(session);
+
+      setSession(session);
       setLoading(false);
 
       if (session) router.replace("/(tabs)");
     })();
+  }, []);
+
+  useEffect(() => {
+    loadEvents();
   }, [loadEvents]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const signup = async (userBody: {
     fullname: string;
@@ -100,46 +119,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
     await StorageUtil.save(STORAGE_KEYS.SESSION, session);
 
-    setUser(session);
+    setSession(session);
 
     return router.replace("/(tabs)");
   };
 
   const logout = async () => {
     await StorageUtil.remove(STORAGE_KEYS.SESSION);
-    setUser(null);
+    setSession(null);
   };
 
   const joinEvent = useCallback(
     async (event: Event) => {
-      if (!user?.userId) return Alert.alert("Please login to join the event.");
+      if (!session?.userId)
+        return Alert.alert("Please login to join the event.");
 
       const eventIndexToJoin = events.findIndex((e) => e.id === event.id);
       if (eventIndexToJoin === -1)
         return Alert.alert("No event found. Please refresh the page and try.");
 
       const eventToJoin = events[eventIndexToJoin];
-      if (eventToJoin.participants.includes(user.userId))
+      if (eventToJoin.participants.includes(session.userId))
         return Alert.alert("You have already joined this event");
 
-      events[eventIndexToJoin].participants.push(user.userId);
+      events[eventIndexToJoin].participants.push(session.userId);
 
       setEvents([...events]);
       // update local storage
       await StorageUtil.save(STORAGE_KEYS.EVENTS, events);
       return Alert.alert("You have successfully joined the event.");
     },
-    [events, user?.userId],
+    [events, session?.userId],
   );
 
   const createEvent = useCallback(
     async (eventBody: ICreateEvent) => {
-      if (!user?.userId) return Alert.alert("Please login to create an event.");
+      if (!session?.userId)
+        return Alert.alert("Please login to create an event.");
 
       const newEvent: Event = {
         ...eventBody,
         id: Date.now(),
-        organizedBy: user.userId,
+        organizedBy: session.userId,
       };
 
       try {
@@ -150,12 +171,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log("Unable to create event", error);
       }
     },
-    [events, loadEvents, user?.userId],
+    [events, loadEvents, session?.userId],
   );
 
   const leaveEvent = useCallback(
     async (eventId: number) => {
-      if (!user?.userId) return Alert.alert("Please login to leave the event.");
+      if (!session?.userId)
+        return Alert.alert("Please login to leave the event.");
 
       const eventIndexToLeave = events.findIndex((e) => e.id === eventId);
 
@@ -163,7 +185,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         return Alert.alert("No event found. Please refresh the page and try.");
 
       const eventToLeave = events[eventIndexToLeave];
-      if (!eventToLeave.participants.includes(user.userId))
+      if (!eventToLeave.participants.includes(session.userId))
         return Alert.alert("You have not joined this event");
 
       if (eventToLeave.startDate < new Date())
@@ -173,20 +195,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
       events[eventIndexToLeave].participants = events[
         eventIndexToLeave
-      ].participants.filter((p) => p !== user.userId);
+      ].participants.filter((p) => p !== session.userId);
 
       await StorageUtil.save(STORAGE_KEYS.EVENTS, events);
       await loadEvents();
       return Alert.alert("You have successfully left the event.");
     },
 
-    [events, loadEvents, user?.userId],
+    [events, loadEvents, session?.userId],
   );
 
   return (
     <AppContext.Provider
       value={{
-        user,
+        session,
         loading,
         signup,
         login,
@@ -198,6 +220,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         joinEvent,
         createEvent,
         leaveEvent,
+        users,
       }}
     >
       {children}
