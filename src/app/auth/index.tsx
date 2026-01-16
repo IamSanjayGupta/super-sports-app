@@ -1,4 +1,4 @@
-import { useAuthContext } from "@/src/context/AuthContext";
+import { useAppContext } from "@/src/context/AppContext";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
@@ -7,7 +7,7 @@ import { Button, Text, TextInput } from "react-native-paper";
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuthContext();
+  const { login } = useAppContext();
 
   const handleLogin = async () => {
     await login(username, password);

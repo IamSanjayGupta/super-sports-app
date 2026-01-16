@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useAppContext } from "@/src/context/AppContext";
+import { ICreateEvent } from "@/src/interfaces/event.interface";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Card,
@@ -44,13 +47,17 @@ const initialState: EventFormState = {
 
 export default function CreateEventScreen() {
   const theme = useTheme();
-
+  const { isLoggedIn, createEvent } = useAppContext();
   const [form, setForm] = useState<EventFormState>(initialState);
   const [eventTypeVisible, setEventTypeVisible] = useState(false);
 
   const [activeDateField, setActiveDateField] = useState<ActiveDateField>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn) router.push("/auth");
+  }, [isLoggedIn]);
 
   const updateForm = <K extends keyof EventFormState>(
     key: K,
@@ -92,15 +99,25 @@ export default function CreateEventScreen() {
     setActiveDateField(null);
   };
 
-  const handleSubmit = () => {
-    const payload = {
+  const handleSubmit = async () => {
+    if (!form.startDate || !form.endDate) return Alert.alert("Missing Dates");
+    if (!form.eventType) return Alert.alert("Missing Event Type");
+
+    if (form.startDate > form.endDate)
+      return Alert.alert("Start date must be before End date");
+
+    const payload: ICreateEvent = {
       ...form,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      eventType: form.eventType,
       maxParticipants: Number(form.maxParticipants),
-      organizedBy: Number(form.organizedBy),
       participants: [],
     };
 
     console.log("CREATE EVENT PAYLOAD:", payload);
+
+    await createEvent(payload);
   };
 
   const isDisabled =
@@ -137,6 +154,7 @@ export default function CreateEventScreen() {
           <TextInput
             label="Banner Image URL"
             mode="outlined"
+            defaultValue="https://images.unsplash.com/photo-1502877338535-766e1452684a"
             value={form.bannerUrl}
             onChangeText={(v) => updateForm("bannerUrl", v)}
             style={styles.input}

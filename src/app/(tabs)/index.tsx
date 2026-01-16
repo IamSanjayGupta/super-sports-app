@@ -1,23 +1,23 @@
 import { EventCard } from "@/src/components/EventCard";
 import { EventFilters, SortField } from "@/src/components/EventFilter";
+import { useAppContext } from "@/src/context/AppContext";
 import { EventType } from "@/src/enum/event.enum";
-import { EVENTS } from "@/src/interfaces/event.interface";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { FAB } from "react-native-paper";
+import { ActivityIndicator, FAB, Text } from "react-native-paper";
 
 export default function EventListScreen() {
+  const [search, setSearch] = useState("");
   const [type, setType] = useState<EventType | "all">("all");
   const [sortBy, setSortBy] = useState<{
     field: SortField;
     order: "asc" | "desc";
   }>({ field: "date", order: "asc" });
-
-  const [search, setSearch] = useState("");
+  const { joinEvent, isEventLoading, events, user } = useAppContext();
 
   const filteredEvents = useMemo(() => {
-    let data = [...EVENTS];
+    let data = [...events];
 
     if (search.trim()) {
       data = data.filter((e) =>
@@ -38,8 +38,8 @@ export default function EventListScreen() {
     if (sortBy.field === "date") {
       data.sort((a, b) =>
         sortBy.order === "asc"
-          ? a.startDate.getTime() - b.startDate.getTime()
-          : b.startDate.getTime() - a.startDate.getTime(),
+          ? new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+          : new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
       );
     }
 
@@ -52,7 +52,11 @@ export default function EventListScreen() {
     }
 
     return data;
-  }, [search, type, sortBy]);
+  }, [search, type, sortBy, events]);
+
+  const myJoinedEvents = !user?.userId
+    ? []
+    : events.filter((event) => event.participants.includes(user.userId));
 
   return (
     <View className="flex-1 px-4 pt-4 ">
@@ -64,12 +68,28 @@ export default function EventListScreen() {
         onSearchChange={setSearch}
       />
 
-      <FlatList
-        data={filteredEvents}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <EventCard event={item} />}
-        showsVerticalScrollIndicator={false}
-      />
+      {isEventLoading ? (
+        <ActivityIndicator className="flex-1" animating={true} />
+      ) : (
+        <FlatList
+          data={filteredEvents}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <EventCard
+              event={item}
+              showJoinBtn
+              onJoin={joinEvent}
+              isAlreadyJoined={myJoinedEvents.includes(item)}
+            />
+          )}
+          ListEmptyComponent={
+            <View className="flex-1 items-center justify-center mt-5">
+              <Text className="text-lg">No events available</Text>
+            </View>
+          }
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       <FAB
         icon="plus"

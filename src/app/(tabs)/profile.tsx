@@ -1,15 +1,16 @@
-import { useAuthContext } from "@/src/context/AuthContext";
-import { Link } from "expo-router";
+import PageTitle from "@/src/components/PageTitle";
+import { useAppContext } from "@/src/context/AppContext";
+import { Link, router } from "expo-router";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, List, Text } from "react-native-paper";
 
 export default function Profile() {
-  const { isLoggedIn, user, logout } = useAuthContext();
+  const { isLoggedIn, user, logout } = useAppContext();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Profile</Text>
+      <PageTitle title="Profile" />
 
       {isLoggedIn ? (
         <>
@@ -31,7 +32,7 @@ export default function Profile() {
               left={(props) => <List.Icon {...props} icon="calendar-check" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
               onPress={() => {
-                // navigate to applied events screen
+                router.push("/event/myevent");
               }}
             />
 
@@ -79,13 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
-  },
-
-  heading: {
-    fontSize: 24,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 24,
   },
 
   profileCard: {

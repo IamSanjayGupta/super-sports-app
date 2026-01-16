@@ -1,4 +1,4 @@
-import { useAuthContext } from "@/src/context/AuthContext";
+import { useAppContext } from "@/src/context/AppContext";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
@@ -8,7 +8,7 @@ export default function SignupScreen() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { signup } = useAuthContext();
+  const { signup } = useAppContext();
 
   const handleSignup = async () => {
     console.log({ name, username: username, password });
@@ -59,7 +59,7 @@ export default function SignupScreen() {
       <View className="flex-row justify-center mt-6">
         <Link href={"/auth"} replace>
           <Text className="">Already have an account? </Text>
-          <Text className="ml-1">Login</Text>
+          <Text className="ml-1 underline">Login</Text>
         </Link>
       </View>
     </View>
