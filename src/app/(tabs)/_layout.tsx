@@ -8,7 +8,6 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      key={isLoggedIn ? "logged-in" : "logged-out"}
       screenOptions={{ headerShown: false }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
