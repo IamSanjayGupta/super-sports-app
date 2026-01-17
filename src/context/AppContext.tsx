@@ -98,7 +98,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       setSession(session);
       setLoading(false);
 
-      if (session) router.replace("/(tabs)");
+      if (session) return router.replace("/(tabs)");
     })();
   }, []);
 
@@ -168,13 +168,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
       events[eventIndexToJoin].participants.push(participantId);
 
-      setEvents([...events]);
-      // update local storage
       await StorageUtil.save(STORAGE_KEYS.EVENTS, events);
+      await loadEvents();
       return Alert.alert("You have successfully joined the event.");
     },
 
-    [events],
+    [events, loadEvents],
   );
 
   const createEvent = useCallback(
@@ -276,7 +275,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         (e) => e.id === requestToApproveOrReject.eventId,
       );
 
-      if (event?.organizedBy != session.userId)
+      if (event?.organizedBy !== session.userId)
         return Alert.alert("Only organizer can approve or reject requests.");
 
       if (action === "approve") {

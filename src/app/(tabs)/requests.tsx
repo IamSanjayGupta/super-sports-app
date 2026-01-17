@@ -4,11 +4,17 @@ import { EventRequest } from "@/src/interfaces/event.interface";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Button, Card, Divider, Text } from "react-native-paper";
+import { Button, Card, Chip, Divider, Text } from "react-native-paper";
 
 export default function Requests() {
-  const { isLoggedIn, eventRequests, approveOrRejectRequest, events } =
-    useAppContext();
+  const {
+    isLoggedIn,
+    session,
+    eventRequests,
+    approveOrRejectRequest,
+    events,
+    users,
+  } = useAppContext();
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -16,36 +22,63 @@ export default function Requests() {
     }
   }, [isLoggedIn]);
 
+  const eventRequestReceivedToMe = eventRequests
+    .map((eventReq) => {
+      const event = events.find((event) => event.id === eventReq.eventId);
+      return event ? { ...eventReq, event } : undefined;
+    })
+    .filter(
+      (req) => req?.event && req.event.organizedBy === session?.userId,
+    ) as EventRequest[];
+
   const renderItem = ({ item }: { item: EventRequest }) => {
-    const event = events.find((event) => event.id === item.eventId);
+    const event = item.event!;
+
+    const requestedBy = users.find((user) => user.id === item.requesterId);
 
     return (
-      <Card style={styles.card}>
+      <Card
+        style={styles.card}
+        onPress={() =>
+          router.push({
+            pathname: "/event/[id]",
+            params: { id: event.id },
+          })
+        }
+      >
         <Card.Title
           title={event?.title}
           subtitle={`Event: ${event?.description}`}
         />
 
         <Card.Content>
-          <Text style={styles.timeText}>Requested {item.eventId}</Text>
+          <Text style={styles.timeText}>
+            Requested By: {requestedBy?.fullname ?? "Unknown"}
+          </Text>
         </Card.Content>
 
         <Divider />
 
         <Card.Actions style={styles.actions}>
-          <Button
-            mode="outlined"
-            onPress={() => approveOrRejectRequest(item.id, "reject")}
-            textColor="#D32F2F"
-          >
-            Reject
-          </Button>
-          <Button
-            mode="contained"
-            onPress={() => approveOrRejectRequest(item.id, "approve")}
-          >
-            Approve
-          </Button>
+          {item.status === "pending" ? (
+            <View className="flex-row gap-3">
+              <Button
+                mode="outlined"
+                onPress={() => approveOrRejectRequest(item.id, "reject")}
+                textColor="red"
+              >
+                Reject
+              </Button>
+              <Button
+                mode="contained"
+                onPress={() => approveOrRejectRequest(item.id, "approve")}
+              >
+                Approve
+              </Button>
+            </View>
+          ) : (
+            <Chip>{item.status.toUpperCase()}</Chip>
+          )}
         </Card.Actions>
       </Card>
     );
@@ -55,14 +88,14 @@ export default function Requests() {
     <View style={styles.container}>
       <PageTitle title="Requests" showBack />
 
-      {eventRequests.length === 0 ? (
+      {eventRequestReceivedToMe.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text variant="titleMedium">No pending requests</Text>
+          <Text variant="titleMedium">No Requests</Text>
           <Text style={styles.emptySub}>You’re all caught up 🎉</Text>
         </View>
       ) : (
         <FlatList
-          data={eventRequests}
+          data={eventRequestReceivedToMe}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
@@ -86,7 +119,8 @@ const styles = StyleSheet.create({
   },
   timeText: {
     marginTop: 4,
-    color: "#6B7280",
+    marginBottom: 8,
+    color: "#7a7c81",
   },
   actions: {
     justifyContent: "flex-end",
