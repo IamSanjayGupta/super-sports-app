@@ -10,7 +10,7 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <PageTitle title="Profile" />
+      <PageTitle title="Profile" showBack />
 
       {isLoggedIn ? (
         <>
@@ -30,13 +30,22 @@ export default function Profile() {
 
           <Card style={styles.actionsCard}>
             <List.Item
-              title="My Applied Events"
+              title="My Joined Events"
               left={(props) => <List.Icon {...props} icon="calendar-check" />}
               right={(props) => <List.Icon {...props} icon="chevron-right" />}
               onPress={() => {
                 router.push("/event/myevent");
               }}
             />
+
+            {/* <List.Item
+              title="My Requests"
+              left={(props) => <List.Icon {...props} icon="calendar-check" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {
+                router.push("/event/myevent");
+              }}
+            /> */}
 
             <Divider />
 

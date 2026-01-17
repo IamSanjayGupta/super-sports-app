@@ -1,13 +1,15 @@
+import { useAppContext } from "@/src/context/AppContext";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Tabs } from "expo-router";
 import { BottomNavigation } from "react-native-paper";
 
 export default function TabLayout() {
+  const { isLoggedIn } = useAppContext();
+
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-      }}
+      key={isLoggedIn ? "logged-in" : "logged-out"}
+      screenOptions={{ headerShown: false }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
           navigationState={state}
@@ -27,7 +29,7 @@ export default function TabLayout() {
           }}
           renderIcon={({ route, focused, color }) => {
             const { options } = descriptors[route.key];
-            return options.tabBarIcon?.({ focused, color, size: 24 }) ?? null;
+            return options.tabBarIcon?.({ focused, color, size: 26 }) ?? null;
           }}
           getLabelText={({ route }) =>
             descriptors[route.key].options.title ?? route.name
@@ -44,6 +46,20 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Protected guard={isLoggedIn}>
+        <Tabs.Screen
+          name="requests"
+          options={{
+            tabBarLabel: "Private",
+            title: "Requests",
+            tabBarIcon: ({ color }) => (
+              <MaterialIcons name="pending-actions" size={26} color={color} />
+            ),
+          }}
+        />
+      </Tabs.Protected>
+
       <Tabs.Screen
         name="profile"
         options={{

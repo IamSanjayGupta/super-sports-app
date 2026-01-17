@@ -15,9 +15,9 @@ export default function EventListScreen() {
     order: "asc" | "desc";
   }>({ field: "date", order: "asc" });
   const {
-    joinEvent,
     leaveEvent,
     isEventLoading,
+    createRequest,
     events,
     session: user,
   } = useAppContext();
@@ -84,7 +84,7 @@ export default function EventListScreen() {
             <EventCard
               event={item}
               showJoinBtn
-              onJoin={joinEvent}
+              onJoin={(event) => createRequest(event.id)}
               onLeave={leaveEvent}
               onViewEvent={(event) =>
                 router.push({

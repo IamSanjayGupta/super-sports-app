@@ -6,7 +6,8 @@ import { Avatar, Button, Card, Chip, Divider, Text } from "react-native-paper";
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { events, users, session, joinEvent, leaveEvent } = useAppContext();
+  const { events, users, session, joinEvent, createRequest, leaveEvent } =
+    useAppContext();
 
   const event = events.find((e) => e.id === Number(id));
 
@@ -57,7 +58,7 @@ export default function EventDetailsScreen() {
             <Button
               mode="contained"
               disabled={eventFull}
-              onPress={() => joinEvent?.(event)}
+              onPress={() => createRequest?.(event.id)}
             >
               {eventFull ? "Full" : "Join"}
             </Button>
