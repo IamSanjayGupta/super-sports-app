@@ -1,4 +1,4 @@
-# Super Sports App 🏅
+# Super Sports App  🏅
 
 A **React Native** mobile application built with **Expo** for sports management.  
 This project uses **Expo Router**, **React Native Paper**, and stores all data locally using AsyncStorage.
